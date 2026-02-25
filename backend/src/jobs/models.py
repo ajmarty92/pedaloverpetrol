@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, Index, Numeric, String, Text, Uuid
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, Numeric, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.base import Base
@@ -32,6 +32,7 @@ class Job(Base):
     status: Mapped[JobStatus] = mapped_column(default=JobStatus.PENDING)
     price: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    route_sequence: Mapped[int | None] = mapped_column(Integer, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),

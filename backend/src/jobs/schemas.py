@@ -36,6 +36,7 @@ class JobRead(BaseModel):
     status: JobStatus
     price: float | None
     notes: str | None
+    route_sequence: int | None
     created_at: datetime
     updated_at: datetime
 
