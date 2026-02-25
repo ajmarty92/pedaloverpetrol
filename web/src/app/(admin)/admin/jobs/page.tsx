@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Package, AlertCircle } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Package, AlertCircle, Route } from "lucide-react";
 import { api } from "@/lib/api-client";
 import { formatDate, truncate } from "@/lib/utils";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OptimizeRouteModal } from "@/components/optimize-route-modal";
 import type { Job, JobStatus } from "@/types";
 
 const STATUS_OPTIONS: { value: string; label: string }[] = [
@@ -21,6 +22,11 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "failed", label: "Failed" },
 ];
 
+interface DriverSummary {
+  id: string;
+  name: string;
+}
+
 function TableSkeleton() {
   return (
     <div className="space-y-3">
@@ -32,6 +38,7 @@ function TableSkeleton() {
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-4 w-20" />
           <Skeleton className="h-5 w-16 rounded-full" />
+          <Skeleton className="h-4 w-10" />
           <Skeleton className="h-4 w-20" />
         </div>
       ))}
@@ -69,7 +76,10 @@ function EmptyState() {
 }
 
 export default function JobsPage() {
+  const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [optimizeDriverId, setOptimizeDriverId] = useState<string | null>(null);
+  const [driverInput, setDriverInput] = useState("");
 
   const queryString = statusFilter ? `?status=${statusFilter}` : "";
 
@@ -84,6 +94,11 @@ export default function JobsPage() {
     queryFn: () => api.get<Job[]>(`/api/jobs${queryString}`),
   });
 
+  const { data: drivers } = useQuery<DriverSummary[]>({
+    queryKey: ["drivers"],
+    queryFn: () => api.get<DriverSummary[]>("/api/drivers"),
+  });
+
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -94,8 +109,8 @@ export default function JobsPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-3">
+      {/* Filters + optimize */}
+      <div className="flex flex-wrap items-center gap-3">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -113,6 +128,30 @@ export default function JobsPage() {
             Clear filter
           </Button>
         )}
+
+        <div className="ml-auto flex items-center gap-2">
+          <select
+            value={driverInput}
+            onChange={(e) => setDriverInput(e.target.value)}
+            className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/50"
+          >
+            <option value="">Select driver…</option>
+            {drivers?.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </select>
+          <Button
+            variant="outline"
+            size="default"
+            disabled={!driverInput}
+            onClick={() => setOptimizeDriverId(driverInput)}
+          >
+            <Route className="h-4 w-4" />
+            Optimize Route
+          </Button>
+        </div>
       </div>
 
       {/* Table */}
@@ -127,13 +166,14 @@ export default function JobsPage() {
                 <th className="px-6 py-3 text-left font-semibold text-gray-600">Drop-off</th>
                 <th className="px-6 py-3 text-left font-semibold text-gray-600">Driver</th>
                 <th className="px-6 py-3 text-left font-semibold text-gray-600">Status</th>
+                <th className="px-6 py-3 text-left font-semibold text-gray-600">Seq</th>
                 <th className="px-6 py-3 text-left font-semibold text-gray-600">Created</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading && (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={8}>
                     <TableSkeleton />
                   </td>
                 </tr>
@@ -141,7 +181,7 @@ export default function JobsPage() {
 
               {isError && (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={8}>
                     <ErrorState
                       message={error instanceof Error ? error.message : "Unknown error"}
                       onRetry={() => refetch()}
@@ -152,7 +192,7 @@ export default function JobsPage() {
 
               {!isLoading && !isError && jobs?.length === 0 && (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={8}>
                     <EmptyState />
                   </td>
                 </tr>
@@ -187,6 +227,15 @@ export default function JobsPage() {
                   <td className="px-6 py-4">
                     <StatusBadge status={job.status} />
                   </td>
+                  <td className="px-6 py-4 text-center">
+                    {job.route_sequence != null ? (
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-xs font-bold text-brand">
+                        {job.route_sequence}
+                      </span>
+                    ) : (
+                      <span className="text-gray-300">—</span>
+                    )}
+                  </td>
                   <td className="px-6 py-4 text-gray-500">
                     {formatDate(job.created_at)}
                   </td>
@@ -196,6 +245,17 @@ export default function JobsPage() {
           </table>
         </div>
       </Card>
+
+      {/* Optimize Route Modal */}
+      {optimizeDriverId && (
+        <OptimizeRouteModal
+          driverId={optimizeDriverId}
+          onClose={() => setOptimizeDriverId(null)}
+          onApplied={() => {
+            queryClient.invalidateQueries({ queryKey: ["jobs"] });
+          }}
+        />
+      )}
     </div>
   );
 }

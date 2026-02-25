@@ -16,8 +16,26 @@ export interface Job {
   status: JobStatus;
   price: number | null;
   notes: string | null;
+  route_sequence: number | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface OptimizedJobItem {
+  sequence: number;
+  job_id: string;
+  tracking_id: string;
+  pickup_address: string;
+  dropoff_address: string;
+  status: JobStatus;
+}
+
+export interface OptimizeRouteResponse {
+  driver_id: string;
+  optimized_jobs: OptimizedJobItem[];
+  total_distance_meters: number;
+  total_duration_seconds: number;
+  engine: string;
 }
 
 export interface TokenResponse {
