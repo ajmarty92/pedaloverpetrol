@@ -1,4 +1,4 @@
-# Pedal Over Petrol — Backend
+# PedalOverPetrol — Backend
 
 FastAPI backend for the courier management system.
 
@@ -6,86 +6,80 @@ FastAPI backend for the courier management system.
 
 ```bash
 cp .env.example .env
-# Edit .env with your secrets
-
-docker compose up --build
+make docker-up
 ```
 
-This starts PostgreSQL and the backend with auto-reload. The API is available at `http://localhost:8000`.
-
-Swagger UI: `http://localhost:8000/docs`
+- API: http://localhost:8000
+- Swagger UI: http://localhost:8000/docs
+- Postgres: `localhost:5432` (user: `courier`, db: `courier`)
 
 ## Quick Start (Local)
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-
-# Start Postgres locally, then:
-export DATABASE_URL=postgresql+asyncpg://courier:courier@localhost:5432/courier
-
-# Run migrations
-alembic upgrade head
-
-# Start the server
-uvicorn main:app --reload
+make install
+# Start Postgres locally, then update DATABASE_URL in .env
+make migrate
+make dev
 ```
 
-## Running Tests
+## Commands
 
-Tests use an in-memory SQLite database — no external services required.
-
-```bash
-pip install -r requirements.txt
-python3 -m pytest tests/ -v
-```
+| Command | Description |
+|---------|-------------|
+| `make dev` | Start dev server (uvicorn --reload) |
+| `make test` | Run test suite (66 tests, in-memory SQLite) |
+| `make migrate` | Run Alembic migrations to latest |
+| `make docker-up` | Start backend + Postgres via Docker Compose |
+| `make docker-down` | Stop Docker Compose services |
+| `make install` | Install Python dependencies |
+| `make help` | Show all commands |
 
 ## Project Structure
 
 ```
 backend/
-├── main.py                 # FastAPI app + router mounting
+├── main.py                 # FastAPI app + global error handlers
+├── Makefile                # Dev shortcuts
 ├── src/
-│   ├── core/               # Settings, logging, JWT/password security
-│   ├── db/                 # SQLAlchemy base, engine, session
+│   ├── core/               # Settings, logging, JWT + bcrypt security
+│   ├── db/                 # SQLAlchemy base, async engine, session
 │   ├── auth/               # User model, login/register, JWT dependencies
-│   ├── jobs/               # Job model, state machine, CRUD
-│   ├── drivers/            # Driver model, CRUD
-│   ├── customers/          # Customer model (routes TBD)
-│   ├── pod/                # Proof of Delivery model + stub route
-│   └── pricing/            # PricingRule model (routes TBD)
-├── alembic/                # Database migrations
-├── tests/
+│   ├── jobs/               # Job model, state machine, CRUD routes
+│   ├── drivers/            # Driver model, CRUD, location
+│   ├── customers/          # Customer model (with portal user link)
+│   ├── customer_portal/    # Customer self-service: auth, jobs, POD, invoice
+│   ├── pod/                # Proof of Delivery model + route
+│   ├── pricing/            # PricingRule model, pricing engine, CRUD + quote
+│   ├── payments/           # Stripe integration (stub + live modes)
+│   ├── routing/            # Route optimization (nearest-neighbor engine)
+│   ├── tracking/           # Public tracking endpoint
+│   └── analytics/          # Summary, by-day, by-driver analytics
+├── alembic/                # Database migrations (001–004)
+├── tests/                  # 66 tests across 7 test files
 ├── Dockerfile
 └── docker-compose.yml
 ```
 
-## API Endpoints
+## Error Response Format
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | /api/auth/register | Admin | Create a new user |
-| POST | /api/auth/login | Public | Login, returns access + refresh tokens |
-| GET | /api/jobs | Auth | List jobs (filter by status, date) |
-| POST | /api/jobs | Auth | Create a job |
-| GET | /api/jobs/{id} | Auth | Get job details |
-| PATCH | /api/jobs/{id} | Auth | Update job (status transitions enforced) |
-| POST | /api/jobs/{id}/assign | Auth | Assign driver to job |
-| POST | /api/jobs/{id}/pod | Auth | Submit proof of delivery |
-| GET | /api/drivers | Auth | List drivers |
-| POST | /api/drivers | Auth | Create driver profile |
-| GET | /api/drivers/{id} | Auth | Get driver details |
-| PATCH | /api/drivers/{id} | Auth | Update driver (status, info) |
+All errors return a standardized JSON envelope:
 
-## Job State Machine
-
-```
-pending → assigned → picked_up → in_transit → delivered
-                                              → failed
+```json
+{
+  "error": {
+    "code": "not_found",
+    "message": "Job not found"
+  }
+}
 ```
 
-Invalid transitions return `409 Conflict`.
+## Tests
 
-## Bootstrapping the First Admin
+Tests use an in-memory SQLite database — no external services required.
 
-Seed the first admin user via a migration data step or directly in the database, then use the login endpoint to obtain tokens.
+```bash
+make test
+```
+
+Coverage: auth (7), jobs (9), tracking (5), routing (13), analytics (7), customer portal (10), pricing + payments (15).

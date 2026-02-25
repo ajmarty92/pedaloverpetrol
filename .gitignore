@@ -8,5 +8,8 @@ build/
 .pytest_cache/
 *.db
 .env
+.env.local
 .venv/
 venv/
+.DS_Store
+node_modules/
