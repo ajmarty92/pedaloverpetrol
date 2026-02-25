@@ -30,42 +30,40 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col bg-gray-950">
-      {/* Brand */}
+    <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col bg-shell">
       <div className="flex h-16 items-center gap-3 border-b border-white/10 px-6">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand">
           <Package className="h-4 w-4 text-white" />
         </div>
-        <span className="text-lg font-bold text-white tracking-tight">
+        <span className="text-lg font-bold tracking-tight text-white">
           PedalOverPetrol
         </span>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-0.5 px-3 py-4" aria-label="Main navigation">
         {navItems.map((item) => {
           const active = isActive(item.href, item.exact);
           return (
             <Link
               key={item.href}
               href={item.href}
+              aria-current={active ? "page" : undefined}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 active
                   ? "bg-brand/10 text-brand"
-                  : "text-gray-400 hover:bg-white/5 hover:text-white",
+                  : "text-gray-400 hover:bg-white/[0.06] hover:text-white",
               )}
             >
-              <item.icon className={cn("h-5 w-5", active && "text-brand")} />
+              <item.icon className={cn("h-5 w-5 shrink-0", active && "text-brand")} />
               {item.label}
             </Link>
           );
         })}
       </nav>
 
-      {/* Footer */}
       <div className="border-t border-white/10 px-6 py-4">
-        <p className="text-xs text-gray-500">© 2026 PedalOverPetrol</p>
+        <p className="text-xs text-gray-600">© 2026 PedalOverPetrol</p>
       </div>
     </aside>
   );

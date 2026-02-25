@@ -22,7 +22,9 @@ import {
   Loader2,
 } from "lucide-react";
 import { api } from "@/lib/api-client";
+import { chartColors } from "@/lib/design-tokens";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import type {
   AnalyticsSummary,
@@ -124,30 +126,23 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header + range selector */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500">
-            Analytics overview for PedalOverPetrol.
-          </p>
-        </div>
-        <div className="flex rounded-lg border border-gray-200 bg-white p-0.5">
+      <PageHeader title="Dashboard" subtitle="Analytics overview for PedalOverPetrol.">
+        <div className="flex rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm">
           {RANGE_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               onClick={() => setRange(opt.value)}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded-md px-3.5 py-1.5 text-sm font-medium transition-all ${
                 range === opt.value
                   ? "bg-brand text-white shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  : "text-gray-500 hover:text-gray-900"
               }`}
             >
               {opt.label}
             </button>
           ))}
         </div>
-      </div>
+      </PageHeader>
 
       {summary.isError && <ErrorBanner message="Failed to load summary." />}
 
@@ -214,16 +209,16 @@ export default function DashboardPage() {
                 }))}
                 margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 11, fill: "#888" }}
+                  tick={{ fontSize: 11, fill: chartColors.tick }}
                   tickLine={false}
-                  axisLine={{ stroke: "#e5e5e5" }}
+                  axisLine={{ stroke: chartColors.axis }}
                 />
                 <YAxis
                   allowDecimals={false}
-                  tick={{ fontSize: 11, fill: "#888" }}
+                  tick={{ fontSize: 11, fill: chartColors.tick }}
                   tickLine={false}
                   axisLine={false}
                 />
@@ -241,14 +236,14 @@ export default function DashboardPage() {
                 <Bar
                   dataKey="jobs_delivered"
                   name="Delivered"
-                  fill="#FF7A00"
+                  fill={chartColors.delivered}
                   radius={[3, 3, 0, 0]}
                   stackId="stack"
                 />
                 <Bar
                   dataKey="jobs_failed"
                   name="Failed"
-                  fill="#EF4444"
+                  fill={chartColors.failed}
                   radius={[3, 3, 0, 0]}
                   stackId="stack"
                 />
@@ -268,19 +263,11 @@ export default function DashboardPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="px-6 py-3 text-left font-semibold text-gray-600">
-                  Driver
-                </th>
-                <th className="px-6 py-3 text-right font-semibold text-gray-600">
-                  Completed
-                </th>
-                <th className="px-6 py-3 text-right font-semibold text-gray-600">
-                  Failed
-                </th>
-                <th className="px-6 py-3 text-right font-semibold text-gray-600">
-                  On-Time Rate
-                </th>
+              <tr className="border-b border-gray-100">
+                <th className="table-header-cell">Driver</th>
+                <th className="table-header-cell text-right">Completed</th>
+                <th className="table-header-cell text-right">Failed</th>
+                <th className="table-header-cell text-right">On-Time Rate</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">

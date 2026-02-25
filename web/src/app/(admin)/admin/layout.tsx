@@ -6,11 +6,11 @@ import { Topbar } from "@/components/topbar";
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-50">
         <Sidebar />
         <div className="pl-64">
           <Topbar />
-          <main className="p-6">{children}</main>
+          <main className="px-6 py-6">{children}</main>
         </div>
       </div>
     </AuthGuard>

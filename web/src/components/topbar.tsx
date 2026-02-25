@@ -15,13 +15,11 @@ export function Topbar() {
   }
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-gray-200 bg-gray-950 px-6">
-      <div />
-
+    <header className="sticky top-0 z-20 flex h-14 items-center justify-end border-b border-white/10 bg-shell px-6">
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 text-sm text-gray-300">
+        <div className="flex items-center gap-2 text-sm text-gray-400">
           <User className="h-4 w-4" />
-          <span>{email ?? "Admin"}</span>
+          <span className="hidden sm:inline">{email ?? "Admin"}</span>
         </div>
         <Button
           variant="ghost"

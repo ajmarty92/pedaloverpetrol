@@ -22,6 +22,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PaymentBadge, StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/ui/page-header";
 import type { CustomerJob, JobStatus, PaymentStatus, PODInfo, InvoiceInfo, PaymentIntentResponse } from "@/types";
 
 function TableSkeleton() {
@@ -361,25 +362,20 @@ export default function CustomerJobsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Your Deliveries</h1>
-        <p className="text-sm text-gray-500">
-          Track your jobs, view proofs of delivery, and pay online.
-        </p>
-      </div>
+      <PageHeader title="Your Deliveries" subtitle="Track your jobs, view proofs of delivery, and pay online." />
 
       <Card>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Tracking ID</th>
-                <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Pickup</th>
-                <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Drop-off</th>
-                <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Status</th>
-                <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Payment</th>
-                <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Date</th>
-                <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Actions</th>
+              <tr className="border-b border-gray-100">
+                <th className="table-header-cell">Tracking ID</th>
+                <th className="table-header-cell">Pickup</th>
+                <th className="table-header-cell">Drop-off</th>
+                <th className="table-header-cell">Status</th>
+                <th className="table-header-cell">Payment</th>
+                <th className="table-header-cell">Date</th>
+                <th className="table-header-cell">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">

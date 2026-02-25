@@ -2,11 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --brand: #ff7a00;
+@layer base {
+  :root {
+    --brand: #ff7a00;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  *:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.4);
+    border-radius: 0.375rem;
+  }
 }
 
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer components {
+  .table-header-cell {
+    @apply px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500;
+  }
+
+  .table-cell {
+    @apply px-5 py-3.5;
+  }
+
+  .table-row-hover {
+    @apply transition-colors hover:bg-gray-50;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
 }

@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/ui/page-header";
 import type { PricingRule, PriceQuoteResponse } from "@/types";
 
 function RuleForm({
@@ -154,17 +155,13 @@ export default function PricingSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Pricing Rules</h1>
-          <p className="text-sm text-gray-500">Configure delivery pricing, surcharges, and zone multipliers.</p>
-        </div>
+      <PageHeader title="Pricing Rules" subtitle="Configure delivery pricing, surcharges, and zone multipliers.">
         {!creating && (
           <Button onClick={() => setCreating(true)}>
             <Plus className="h-4 w-4" /> New Rule
           </Button>
         )}
-      </div>
+      </PageHeader>
 
       {creating && (
         <RuleForm

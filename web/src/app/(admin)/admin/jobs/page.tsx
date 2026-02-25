@@ -9,6 +9,8 @@ import { Card } from "@/components/ui/card";
 import { PaymentBadge, StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { OptimizeRouteModal } from "@/components/optimize-route-modal";
 import type { Driver, Job, JobStatus } from "@/types";
 
@@ -58,15 +60,13 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
   );
 }
 
-function EmptyState() {
+function JobsEmptyState() {
   return (
-    <div className="flex flex-col items-center gap-3 py-16">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-        <Package className="h-6 w-6 text-gray-400" />
-      </div>
-      <p className="font-medium text-gray-900">No jobs found</p>
-      <p className="text-sm text-gray-500">Try adjusting your filters.</p>
-    </div>
+    <EmptyState
+      icon={<Package className="h-6 w-6" />}
+      title="No jobs found"
+      subtitle="Try adjusting your filters."
+    />
   );
 }
 
@@ -96,13 +96,7 @@ export default function JobsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Jobs</h1>
-          <p className="text-sm text-gray-500">Manage and track delivery jobs.</p>
-        </div>
-      </div>
+      <PageHeader title="Jobs" subtitle="Manage and track delivery jobs." />
 
       {/* Filters + optimize */}
       <div className="flex flex-wrap items-center gap-3">
@@ -154,16 +148,16 @@ export default function JobsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="px-6 py-3 text-left font-semibold text-gray-600">Tracking ID</th>
-                <th className="px-6 py-3 text-left font-semibold text-gray-600">Customer</th>
-                <th className="px-6 py-3 text-left font-semibold text-gray-600">Pickup</th>
-                <th className="px-6 py-3 text-left font-semibold text-gray-600">Drop-off</th>
-                <th className="px-6 py-3 text-left font-semibold text-gray-600">Driver</th>
-                <th className="px-6 py-3 text-left font-semibold text-gray-600">Status</th>
-                <th className="px-6 py-3 text-left font-semibold text-gray-600">Payment</th>
-                <th className="px-6 py-3 text-left font-semibold text-gray-600">Seq</th>
-                <th className="px-6 py-3 text-left font-semibold text-gray-600">Created</th>
+              <tr className="border-b border-gray-100">
+                <th className="table-header-cell">Tracking ID</th>
+                <th className="table-header-cell">Customer</th>
+                <th className="table-header-cell">Pickup</th>
+                <th className="table-header-cell">Drop-off</th>
+                <th className="table-header-cell">Driver</th>
+                <th className="table-header-cell">Status</th>
+                <th className="table-header-cell">Payment</th>
+                <th className="table-header-cell text-center">Seq</th>
+                <th className="table-header-cell">Created</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -189,53 +183,48 @@ export default function JobsPage() {
               {!isLoading && !isError && jobs?.length === 0 && (
                 <tr>
                   <td colSpan={9}>
-                    <EmptyState />
+                    <JobsEmptyState />
                   </td>
                 </tr>
               )}
 
               {jobs?.map((job) => (
-                <tr
-                  key={job.id}
-                  className="transition-colors hover:bg-gray-50/50"
-                >
-                  <td className="px-6 py-4 font-mono text-xs font-semibold text-gray-900">
+                <tr key={job.id} className="table-row-hover">
+                  <td className="table-cell font-mono text-xs font-semibold text-gray-900">
                     {job.tracking_id}
                   </td>
-                  <td className="px-6 py-4 text-gray-700">
+                  <td className="table-cell text-gray-600">
                     {job.customer_id.slice(0, 8)}…
                   </td>
-                  <td className="px-6 py-4 text-gray-600">
+                  <td className="table-cell text-gray-600">
                     {truncate(job.pickup_address, 30)}
                   </td>
-                  <td className="px-6 py-4 text-gray-600">
+                  <td className="table-cell text-gray-600">
                     {truncate(job.dropoff_address, 30)}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="table-cell">
                     {job.driver_id ? (
-                      <span className="text-gray-700">
-                        {job.driver_id.slice(0, 8)}…
-                      </span>
+                      <span className="text-gray-700">{job.driver_id.slice(0, 8)}…</span>
                     ) : (
-                      <span className="text-gray-400 italic">Unassigned</span>
+                      <span className="italic text-gray-400">Unassigned</span>
                     )}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="table-cell">
                     <StatusBadge status={job.status} />
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="table-cell">
                     <PaymentBadge status={job.payment_status} />
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="table-cell text-center">
                     {job.route_sequence != null ? (
-                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-xs font-bold text-brand">
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-xs font-bold text-brand-800 tabular">
                         {job.route_sequence}
                       </span>
                     ) : (
                       <span className="text-gray-300">—</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-gray-500">
+                  <td className="table-cell tabular text-gray-500">
                     {formatDate(job.created_at)}
                   </td>
                 </tr>

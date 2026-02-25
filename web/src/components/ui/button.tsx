@@ -1,14 +1,15 @@
 import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-type Variant = "default" | "outline" | "ghost" | "destructive";
+type Variant = "default" | "secondary" | "outline" | "ghost" | "destructive";
 type Size = "default" | "sm" | "lg" | "icon";
 
 const variantStyles: Record<Variant, string> = {
-  default: "bg-brand text-white hover:bg-brand-600 shadow-sm",
-  outline: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
-  ghost: "text-gray-700 hover:bg-gray-100",
-  destructive: "bg-red-600 text-white hover:bg-red-700",
+  default: "bg-brand text-white shadow-sm hover:bg-brand-600 active:bg-brand-700",
+  secondary: "bg-gray-900 text-white shadow-sm hover:bg-gray-800 active:bg-gray-700",
+  outline: "border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50 active:bg-gray-100",
+  ghost: "text-gray-600 hover:bg-gray-100 hover:text-gray-900 active:bg-gray-200",
+  destructive: "bg-red-600 text-white shadow-sm hover:bg-red-700 active:bg-red-800",
 };
 
 const sizeStyles: Record<Size, string> = {
@@ -28,8 +29,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     <button
       ref={ref}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50",
+        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
         "disabled:pointer-events-none disabled:opacity-50",
         variantStyles[variant],
         sizeStyles[size],
