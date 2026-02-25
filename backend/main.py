@@ -1,5 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from src.analytics.routes import router as analytics_router
 from src.auth.routes import router as auth_router
@@ -39,6 +42,34 @@ app.include_router(pod_router)
 app.include_router(pricing_router)
 app.include_router(routing_router)
 app.include_router(tracking_router)
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(_request: Request, exc: StarletteHTTPException):
+    detail = exc.detail if isinstance(exc.detail, str) else str(exc.detail)
+    code = {
+        400: "bad_request",
+        401: "unauthorized",
+        403: "forbidden",
+        404: "not_found",
+        409: "conflict",
+        422: "validation_error",
+    }.get(exc.status_code, "error")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": {"code": code, "message": detail}},
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(_request: Request, exc: RequestValidationError):
+    messages = "; ".join(
+        f"{'.'.join(str(l) for l in e['loc'][1:])}: {e['msg']}" for e in exc.errors()
+    )
+    return JSONResponse(
+        status_code=422,
+        content={"error": {"code": "validation_error", "message": messages}},
+    )
 
 
 @app.get("/health", tags=["system"])

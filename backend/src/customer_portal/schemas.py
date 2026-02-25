@@ -40,7 +40,7 @@ class PODRead(BaseModel):
     job_id: uuid.UUID
     recipient_name: str
     signature_url: str | None
-    photo_urls: list | None
+    photo_urls: list[str] | None
     delivered_at: datetime
     gps_lat: float | None
     gps_lng: float | None
