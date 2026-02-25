@@ -1,4 +1,4 @@
-.PHONY: help install dev test migrate lint docker-up docker-down
+.PHONY: help install dev test migrate seed lint docker-up docker-down
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -20,6 +20,9 @@ migrate: ## Run Alembic migrations to latest
 
 migrate-new: ## Create a new migration (usage: make migrate-new MSG="add foo")
 	alembic revision --autogenerate -m "$(MSG)"
+
+seed: ## Populate DB with realistic test data
+	python3 seed.py
 
 lint: ## Run basic Python checks
 	python3 -m py_compile main.py
