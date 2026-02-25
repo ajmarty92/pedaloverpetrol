@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "PedalOverPetrol",
+    "slug": "pedaloverpetrol",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "pedaloverpetrol",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.pedaloverpetrol.driver"
+    },
+    "android": {
+      "package": "com.pedaloverpetrol.driver",
+      "adaptiveIcon": {
+        "backgroundColor": "#000000"
+      }
+    }
+  }
+}
