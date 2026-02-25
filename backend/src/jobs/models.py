@@ -17,6 +17,13 @@ class JobStatus(str, enum.Enum):
     FAILED = "failed"
 
 
+class PaymentStatus(str, enum.Enum):
+    UNPAID = "unpaid"
+    PENDING = "pending"
+    PAID = "paid"
+    FAILED = "failed"
+
+
 class Job(Base):
     __tablename__ = "jobs"
 
@@ -31,6 +38,8 @@ class Job(Base):
     dropoff_address: Mapped[str] = mapped_column(String(500), nullable=False)
     status: Mapped[JobStatus] = mapped_column(default=JobStatus.PENDING)
     price: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
+    payment_status: Mapped[PaymentStatus] = mapped_column(default=PaymentStatus.UNPAID)
+    stripe_payment_intent_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     route_sequence: Mapped[int | None] = mapped_column(Integer, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(

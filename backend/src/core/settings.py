@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     first_admin_email: str = "admin@example.com"
     first_admin_password: str = "changeme"
 
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+
     log_level: str = "INFO"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}

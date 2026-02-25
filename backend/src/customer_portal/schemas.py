@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from src.jobs.models import JobStatus
+from src.jobs.models import JobStatus, PaymentStatus
 
 
 class CustomerLoginRequest(BaseModel):
@@ -25,6 +25,7 @@ class CustomerJobRead(BaseModel):
     dropoff_address: str
     status: JobStatus
     price: float | None
+    payment_status: PaymentStatus
     notes: str | None
     created_at: datetime
     updated_at: datetime

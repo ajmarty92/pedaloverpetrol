@@ -63,6 +63,7 @@ async def list_customer_jobs(
             dropoff_address=j.dropoff_address,
             status=j.status,
             price=j.price,
+            payment_status=j.payment_status,
             notes=j.notes,
             created_at=j.created_at,
             updated_at=j.updated_at,

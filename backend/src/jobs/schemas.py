@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from src.jobs.models import JobStatus
+from src.jobs.models import JobStatus, PaymentStatus
 
 
 class JobCreate(BaseModel):
@@ -35,6 +35,7 @@ class JobRead(BaseModel):
     dropoff_address: str
     status: JobStatus
     price: float | None
+    payment_status: PaymentStatus
     notes: str | None
     route_sequence: int | None
     created_at: datetime
