@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.analytics.routes import router as analytics_router
 from src.auth.routes import router as auth_router
 from src.core.logging import setup_logging
 from src.drivers.routes import router as drivers_router
@@ -25,6 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(analytics_router)
 app.include_router(auth_router)
 app.include_router(jobs_router)
 app.include_router(drivers_router)

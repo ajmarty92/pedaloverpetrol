@@ -4,6 +4,7 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import StaticPool
 
 from src.auth.models import User, UserRole
 from src.core.security import create_access_token, hash_password
@@ -15,9 +16,21 @@ from src.drivers.models import Driver
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
 
+@pytest.fixture(scope="session", autouse=True)
+def _preload_app():
+    """Import the FastAPI app once at session start so the module-level engine
+    in src.db.session is created before any per-test engines.  This avoids an
+    aiosqlite race condition on the very first test."""
+    import main  # noqa: F401
+
+
 @pytest_asyncio.fixture()
 async def db_engine():
-    engine = create_async_engine(TEST_DB_URL, echo=False)
+    engine = create_async_engine(
+        TEST_DB_URL, echo=False,
+        poolclass=StaticPool,
+        connect_args={"check_same_thread": False},
+    )
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield engine
@@ -65,7 +78,6 @@ async def admin_user(db_session: AsyncSession) -> User:
     )
     db_session.add(user)
     await db_session.commit()
-    await db_session.refresh(user)
     return user
 
 
@@ -84,7 +96,6 @@ async def customer(db_session: AsyncSession) -> Customer:
     cust = Customer(id=uuid.uuid4(), name="Test Corp", phone="555-0100", email="test@corp.com")
     db_session.add(cust)
     await db_session.commit()
-    await db_session.refresh(cust)
     return cust
 
 
@@ -98,7 +109,6 @@ async def driver_user(db_session: AsyncSession) -> User:
     )
     db_session.add(user)
     await db_session.commit()
-    await db_session.refresh(user)
     return user
 
 
@@ -110,5 +120,4 @@ async def driver(db_session: AsyncSession, driver_user: User) -> Driver:
     )
     db_session.add(drv)
     await db_session.commit()
-    await db_session.refresh(drv)
     return drv
