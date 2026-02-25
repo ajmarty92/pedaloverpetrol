@@ -44,6 +44,50 @@ export interface TokenResponse {
   token_type: string;
 }
 
+export interface CustomerTokenResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  customer_name: string;
+}
+
+export interface CustomerJob {
+  id: string;
+  tracking_id: string;
+  pickup_address: string;
+  dropoff_address: string;
+  status: JobStatus;
+  price: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  delivered_at: string | null;
+  has_pod: boolean;
+}
+
+export interface PODInfo {
+  id: string;
+  job_id: string;
+  recipient_name: string;
+  signature_url: string | null;
+  photo_urls: string[] | null;
+  delivered_at: string;
+  gps_lat: number | null;
+  gps_lng: number | null;
+}
+
+export interface InvoiceInfo {
+  job_id: string;
+  tracking_id: string;
+  customer_name: string;
+  pickup_address: string;
+  dropoff_address: string;
+  status: string;
+  price: number | null;
+  created_at: string;
+  delivered_at: string | null;
+}
+
 export interface TrackingDriverSummary {
   id: string;
   name: string;
