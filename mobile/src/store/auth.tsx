@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setOnUnauthorized } from "../api/client";
 
 const ACCESS_KEY = "pop_access_token";
 const REFRESH_KEY = "pop_refresh_token";
@@ -31,12 +32,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const signOut = useCallback(async () => {
+    await AsyncStorage.multiRemove([ACCESS_KEY, REFRESH_KEY]);
+    setToken(null);
+  }, []);
+
   useEffect(() => {
     AsyncStorage.getItem(ACCESS_KEY)
       .then((stored) => {
         if (stored) setToken(stored);
       })
       .finally(() => setIsLoading(false));
+
+    setOnUnauthorized(() => {
+      setToken(null);
+    });
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
@@ -48,9 +58,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(
-        typeof body.detail === "string" ? body.detail : "Login failed"
-      );
+      const envelope = body?.error as Record<string, unknown> | undefined;
+      const message =
+        (typeof envelope?.message === "string" ? envelope.message : null) ??
+        (typeof body?.detail === "string" ? body.detail : "Login failed");
+      throw new Error(message);
     }
 
     const data = await res.json();
@@ -59,14 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(data.access_token);
   }, []);
 
-  const signOut = useCallback(async () => {
-    await AsyncStorage.multiRemove([ACCESS_KEY, REFRESH_KEY]);
-    setToken(null);
-  }, []);
-
   const value = useMemo(
     () => ({ token, isLoading, signIn, signOut }),
-    [token, isLoading, signIn, signOut]
+    [token, isLoading, signIn, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
