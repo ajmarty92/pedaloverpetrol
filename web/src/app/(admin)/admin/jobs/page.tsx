@@ -10,7 +10,7 @@ import { PaymentBadge, StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizeRouteModal } from "@/components/optimize-route-modal";
-import type { Job, JobStatus } from "@/types";
+import type { Driver, Job, JobStatus } from "@/types";
 
 const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "", label: "All statuses" },
@@ -21,11 +21,6 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "delivered", label: "Delivered" },
   { value: "failed", label: "Failed" },
 ];
-
-interface DriverSummary {
-  id: string;
-  name: string;
-}
 
 function TableSkeleton() {
   return (
@@ -94,9 +89,9 @@ export default function JobsPage() {
     queryFn: () => api.get<Job[]>(`/api/jobs${queryString}`),
   });
 
-  const { data: drivers } = useQuery<DriverSummary[]>({
+  const { data: drivers } = useQuery<Driver[]>({
     queryKey: ["drivers"],
-    queryFn: () => api.get<DriverSummary[]>("/api/drivers"),
+    queryFn: () => api.get<Driver[]>("/api/drivers"),
   });
 
   return (

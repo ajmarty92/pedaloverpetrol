@@ -17,7 +17,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { customerApi, CustomerApiError } from "@/lib/customer-api";
-import { cn, formatDate, truncate } from "@/lib/utils";
+import { formatDate, truncate } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { PaymentBadge, StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

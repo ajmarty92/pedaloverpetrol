@@ -1,3 +1,10 @@
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+export type UserRole = "admin" | "dispatcher" | "driver" | "customer";
+export type DriverStatus = "on_duty" | "off_duty";
+
 export type JobStatus =
   | "pending"
   | "assigned"
@@ -7,6 +14,31 @@ export type JobStatus =
   | "failed";
 
 export type PaymentStatus = "unpaid" | "pending" | "paid" | "failed";
+
+// ---------------------------------------------------------------------------
+// Core domain models (mirror backend Pydantic Read schemas)
+// ---------------------------------------------------------------------------
+
+export interface User {
+  id: string;
+  email: string;
+  role: UserRole;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface Driver {
+  id: string;
+  user_id: string;
+  name: string;
+  phone: string;
+  vehicle_info: string | null;
+  status: DriverStatus;
+  current_lat: number | null;
+  current_lng: number | null;
+  last_location_update_at: string | null;
+  created_at: string;
+}
 
 export interface Job {
   id: string;
@@ -24,6 +56,18 @@ export interface Job {
   updated_at: string;
 }
 
+export interface PODInfo {
+  id: string;
+  job_id: string;
+  recipient_name: string;
+  signature_url: string | null;
+  photo_urls: string[] | null;
+  delivered_at: string;
+  gps_lat: number | null;
+  gps_lng: number | null;
+  created_at: string;
+}
+
 export interface PricingRule {
   id: string;
   rule_name: string;
@@ -36,6 +80,65 @@ export interface PricingRule {
   created_at: string;
 }
 
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+
+export interface TokenResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+}
+
+export interface CustomerTokenResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  customer_name: string;
+}
+
+// ---------------------------------------------------------------------------
+// Customer portal
+// ---------------------------------------------------------------------------
+
+export interface CustomerJob {
+  id: string;
+  tracking_id: string;
+  pickup_address: string;
+  dropoff_address: string;
+  status: JobStatus;
+  price: number | null;
+  payment_status: PaymentStatus;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  delivered_at: string | null;
+  has_pod: boolean;
+}
+
+export interface InvoiceInfo {
+  job_id: string;
+  tracking_id: string;
+  customer_name: string;
+  pickup_address: string;
+  dropoff_address: string;
+  status: string;
+  price: number | null;
+  created_at: string;
+  delivered_at: string | null;
+}
+
+export interface PaymentIntentResponse {
+  client_secret: string;
+  amount: number;
+  currency: string;
+  mode: string;
+}
+
+// ---------------------------------------------------------------------------
+// Pricing
+// ---------------------------------------------------------------------------
+
 export interface PriceQuoteResponse {
   rule_name: string;
   base_rate: number;
@@ -47,12 +150,9 @@ export interface PriceQuoteResponse {
   breakdown: string;
 }
 
-export interface PaymentIntentResponse {
-  client_secret: string;
-  amount: number;
-  currency: string;
-  mode: string;
-}
+// ---------------------------------------------------------------------------
+// Route optimization
+// ---------------------------------------------------------------------------
 
 export interface OptimizedJobItem {
   sequence: number;
@@ -71,56 +171,9 @@ export interface OptimizeRouteResponse {
   engine: string;
 }
 
-export interface TokenResponse {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-}
-
-export interface CustomerTokenResponse {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-  customer_name: string;
-}
-
-export interface CustomerJob {
-  id: string;
-  tracking_id: string;
-  pickup_address: string;
-  dropoff_address: string;
-  status: JobStatus;
-  price: number | null;
-  payment_status: PaymentStatus;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-  delivered_at: string | null;
-  has_pod: boolean;
-}
-
-export interface PODInfo {
-  id: string;
-  job_id: string;
-  recipient_name: string;
-  signature_url: string | null;
-  photo_urls: string[] | null;
-  delivered_at: string;
-  gps_lat: number | null;
-  gps_lng: number | null;
-}
-
-export interface InvoiceInfo {
-  job_id: string;
-  tracking_id: string;
-  customer_name: string;
-  pickup_address: string;
-  dropoff_address: string;
-  status: string;
-  price: number | null;
-  created_at: string;
-  delivered_at: string | null;
-}
+// ---------------------------------------------------------------------------
+// Tracking
+// ---------------------------------------------------------------------------
 
 export interface TrackingDriverSummary {
   id: string;
@@ -129,6 +182,21 @@ export interface TrackingDriverSummary {
   current_lng: number | null;
   last_location_update_at: string | null;
 }
+
+export interface TrackingInfo {
+  tracking_id: string;
+  status: JobStatus;
+  pickup_address: string;
+  dropoff_address: string;
+  created_at: string;
+  updated_at: string;
+  delivered_at: string | null;
+  driver: TrackingDriverSummary | null;
+}
+
+// ---------------------------------------------------------------------------
+// Analytics
+// ---------------------------------------------------------------------------
 
 export interface AnalyticsSummary {
   jobs_total: number;
@@ -164,13 +232,13 @@ export interface ByDriverResponse {
   drivers: DriverPerformance[];
 }
 
-export interface TrackingInfo {
-  tracking_id: string;
-  status: JobStatus;
-  pickup_address: string;
-  dropoff_address: string;
-  created_at: string;
-  updated_at: string;
-  delivered_at: string | null;
-  driver: TrackingDriverSummary | null;
+// ---------------------------------------------------------------------------
+// API error shape (standardized from backend)
+// ---------------------------------------------------------------------------
+
+export interface ApiErrorBody {
+  error: {
+    code: string;
+    message: string;
+  };
 }
