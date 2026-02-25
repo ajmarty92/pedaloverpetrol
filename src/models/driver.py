@@ -1,7 +1,6 @@
 import uuid
 
-from sqlalchemy import ForeignKey, Index, String
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy import ForeignKey, Index, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base
@@ -11,6 +10,7 @@ class Driver(Base):
     __tablename__ = "drivers"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,

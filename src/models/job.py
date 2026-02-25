@@ -1,7 +1,7 @@
 import enum
 import uuid
 
-from sqlalchemy import DateTime, ForeignKey, Index, String, Text
+from sqlalchemy import DateTime, ForeignKey, Index, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base
@@ -20,14 +20,16 @@ class Job(Base):
     __tablename__ = "jobs"
 
     tracking_id: Mapped[str] = mapped_column(
-        String(20), unique=True, nullable=False, index=True,
+        String(20), unique=True, nullable=False,
     )
     status: Mapped[JobStatus] = mapped_column(default=JobStatus.PENDING)
 
     customer_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
         ForeignKey("customers.id", ondelete="RESTRICT"), nullable=False,
     )
     driver_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True),
         ForeignKey("drivers.id", ondelete="SET NULL"), nullable=True,
     )
 

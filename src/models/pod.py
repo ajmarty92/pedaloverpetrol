@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, String, Text
+from sqlalchemy import DateTime, ForeignKey, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base
@@ -13,6 +13,7 @@ class POD(Base):
     __tablename__ = "pods"
 
     job_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
         ForeignKey("jobs.id", ondelete="CASCADE"), unique=True, nullable=False,
     )
     signed_by: Mapped[str] = mapped_column(String(255), nullable=False)

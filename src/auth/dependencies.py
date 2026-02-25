@@ -1,3 +1,4 @@
+import uuid as _uuid
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
@@ -27,6 +28,7 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
         token_data = TokenPayload(**payload)
+        user_id = _uuid.UUID(token_data.sub)
     except (JWTError, KeyError, ValueError) as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -34,7 +36,7 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         ) from exc
 
-    result = await db.execute(select(User).where(User.id == token_data.sub))
+    result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if user is None or not user.is_active:
         raise HTTPException(
