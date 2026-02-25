@@ -77,7 +77,11 @@ function EmptyState() {
 
 export default function JobsListScreen() {
   const navigation = useNavigation<Nav>();
-  const { data: jobs, isLoading, isError, error, refetch } = useJobs();
+  const { data: jobs, isLoading, isError, error, refetch, dataUpdatedAt } = useJobs();
+
+  const lastUpdated = dataUpdatedAt
+    ? new Date(dataUpdatedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+    : null;
 
   if (isLoading) {
     return (
@@ -112,6 +116,11 @@ export default function JobsListScreen() {
           onPress={() => navigation.navigate("JobDetail", { jobId: item.id })}
         />
       )}
+      ListHeaderComponent={
+        lastUpdated ? (
+          <Text style={styles.lastUpdated}>Last updated: {lastUpdated}</Text>
+        ) : null
+      }
       ListEmptyComponent={EmptyState}
       refreshControl={
         <RefreshControl
@@ -251,5 +260,11 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: "600",
     color: colors.primary,
+  },
+  lastUpdated: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    textAlign: "center",
+    marginBottom: spacing.sm,
   },
 });

@@ -7,15 +7,47 @@
     "scheme": "pedaloverpetrol",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#000000"
+    },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.pedaloverpetrol.driver"
+      "bundleIdentifier": "com.pedaloverpetrol.driver",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Camera is used to photograph delivered packages.",
+        "NSPhotoLibraryUsageDescription": "Photo library access for proof of delivery photos.",
+        "NSLocationWhenInUseUsageDescription": "Location is used to track deliveries while you're on duty.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Background location keeps your position updated during active deliveries."
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.pedaloverpetrol.driver",
       "adaptiveIcon": {
         "backgroundColor": "#000000"
-      }
-    }
+      },
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow PedalOverPetrol to track your location during active deliveries."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Camera is used to photograph delivered packages."
+        }
+      ]
+    ]
   }
 }

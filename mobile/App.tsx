@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StatusBar } from "expo-status-bar";
 import { AuthProvider, useAuth } from "./src/store/auth";
+import { OfflineProvider } from "./src/store/offline";
 import { colors, navigationTheme } from "./src/theme/theme";
 import AuthNavigator from "./src/navigation/AuthNavigator";
 import AppNavigator from "./src/navigation/AppNavigator";
@@ -32,10 +33,12 @@ export default function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
-        <NavigationContainer theme={navigationTheme}>
-          <StatusBar style="light" />
-          <RootNavigator />
-        </NavigationContainer>
+        <OfflineProvider>
+          <NavigationContainer theme={navigationTheme}>
+            <StatusBar style="light" />
+            <RootNavigator />
+          </NavigationContainer>
+        </OfflineProvider>
       </QueryClientProvider>
     </AuthProvider>
   );

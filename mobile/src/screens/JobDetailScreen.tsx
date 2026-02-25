@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useJob, useUpdateJobStatus, type JobStatus } from "../api/jobs";
+import { useOffline } from "../store/offline";
 import {
   colors,
   fontSize,
@@ -68,14 +69,22 @@ function StatusBadgeLarge({ status }: { status: string }) {
   );
 }
 
-export default function JobDetailScreen({ route }: Props) {
+export default function JobDetailScreen({ route, navigation }: Props) {
   const { jobId } = route.params;
   const { data: job, isLoading, isError, refetch } = useJob(jobId);
   const mutation = useUpdateJobStatus();
+  const { isOnline, enqueue } = useOffline();
   const [failReason, setFailReason] = useState("");
   const [showFailInput, setShowFailInput] = useState(false);
 
   function handleAction(action: StatusAction) {
+    if (action.target === "delivered" && job) {
+      navigation.navigate("PODCapture", {
+        jobId,
+        trackingId: job.tracking_id,
+      });
+      return;
+    }
     if (action.target === "failed") {
       setShowFailInput(true);
       return;
@@ -83,7 +92,7 @@ export default function JobDetailScreen({ route }: Props) {
     confirmAndUpdate(action.target);
   }
 
-  function confirmAndUpdate(target: JobStatus) {
+  async function confirmAndUpdate(target: JobStatus) {
     Alert.alert(
       "Confirm Status Update",
       `Change status to "${STATUS_META[target]?.label ?? target}"?`,
@@ -91,21 +100,36 @@ export default function JobDetailScreen({ route }: Props) {
         { text: "Cancel", style: "cancel" },
         {
           text: "Confirm",
-          onPress: () =>
-            mutation.mutate(
-              { jobId, status: target },
-              {
-                onSuccess: () => {
-                  setShowFailInput(false);
-                  setFailReason("");
+          onPress: async () => {
+            if (isOnline) {
+              mutation.mutate(
+                { jobId, status: target },
+                {
+                  onSuccess: () => {
+                    setShowFailInput(false);
+                    setFailReason("");
+                  },
+                  onError: async (err) => {
+                    await enqueue({
+                      type: "status_update",
+                      jobId,
+                      payload: { status: target },
+                    });
+                    Alert.alert("Queued Offline", "Update saved — will sync when connected.");
+                  },
                 },
-                onError: (err) => {
-                  Alert.alert("Error", err.message);
-                },
-              }
-            ),
+              );
+            } else {
+              await enqueue({
+                type: "status_update",
+                jobId,
+                payload: { status: target },
+              });
+              Alert.alert("Queued Offline", "Update saved — will sync when connected.");
+            }
+          },
         },
-      ]
+      ],
     );
   }
 
