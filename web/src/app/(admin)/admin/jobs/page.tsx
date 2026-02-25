@@ -6,7 +6,7 @@ import { Package, AlertCircle, Route } from "lucide-react";
 import { api } from "@/lib/api-client";
 import { formatDate, truncate } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { StatusBadge } from "@/components/ui/badge";
+import { PaymentBadge, StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizeRouteModal } from "@/components/optimize-route-modal";
@@ -166,6 +166,7 @@ export default function JobsPage() {
                 <th className="px-6 py-3 text-left font-semibold text-gray-600">Drop-off</th>
                 <th className="px-6 py-3 text-left font-semibold text-gray-600">Driver</th>
                 <th className="px-6 py-3 text-left font-semibold text-gray-600">Status</th>
+                <th className="px-6 py-3 text-left font-semibold text-gray-600">Payment</th>
                 <th className="px-6 py-3 text-left font-semibold text-gray-600">Seq</th>
                 <th className="px-6 py-3 text-left font-semibold text-gray-600">Created</th>
               </tr>
@@ -173,7 +174,7 @@ export default function JobsPage() {
             <tbody className="divide-y divide-gray-100">
               {isLoading && (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={9}>
                     <TableSkeleton />
                   </td>
                 </tr>
@@ -181,7 +182,7 @@ export default function JobsPage() {
 
               {isError && (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={9}>
                     <ErrorState
                       message={error instanceof Error ? error.message : "Unknown error"}
                       onRetry={() => refetch()}
@@ -192,7 +193,7 @@ export default function JobsPage() {
 
               {!isLoading && !isError && jobs?.length === 0 && (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={9}>
                     <EmptyState />
                   </td>
                 </tr>
@@ -226,6 +227,9 @@ export default function JobsPage() {
                   </td>
                   <td className="px-6 py-4">
                     <StatusBadge status={job.status} />
+                  </td>
+                  <td className="px-6 py-4">
+                    <PaymentBadge status={job.payment_status} />
                   </td>
                   <td className="px-6 py-4 text-center">
                     {job.route_sequence != null ? (

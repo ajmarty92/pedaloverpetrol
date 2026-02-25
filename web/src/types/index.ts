@@ -6,6 +6,8 @@ export type JobStatus =
   | "delivered"
   | "failed";
 
+export type PaymentStatus = "unpaid" | "pending" | "paid" | "failed";
+
 export interface Job {
   id: string;
   tracking_id: string;
@@ -15,10 +17,41 @@ export interface Job {
   dropoff_address: string;
   status: JobStatus;
   price: number | null;
+  payment_status: PaymentStatus;
   notes: string | null;
   route_sequence: number | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface PricingRule {
+  id: string;
+  rule_name: string;
+  base_rate: number;
+  per_mile_rate: number;
+  rush_surcharge: number;
+  heavy_surcharge: number;
+  zone_config: Record<string, unknown> | null;
+  active: boolean;
+  created_at: string;
+}
+
+export interface PriceQuoteResponse {
+  rule_name: string;
+  base_rate: number;
+  distance_charge: number;
+  rush_surcharge: number;
+  heavy_surcharge: number;
+  zone_multiplier: number;
+  total: number;
+  breakdown: string;
+}
+
+export interface PaymentIntentResponse {
+  client_secret: string;
+  amount: number;
+  currency: string;
+  mode: string;
 }
 
 export interface OptimizedJobItem {
@@ -58,6 +91,7 @@ export interface CustomerJob {
   dropoff_address: string;
   status: JobStatus;
   price: number | null;
+  payment_status: PaymentStatus;
   notes: string | null;
   created_at: string;
   updated_at: string;

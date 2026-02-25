@@ -8,6 +8,7 @@ import {
   Truck,
   Users,
   Settings,
+  DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,7 @@ const navItems = [
   { href: "/admin/jobs", label: "Jobs", icon: Package },
   { href: "/admin/drivers", label: "Drivers", icon: Truck },
   { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/settings/pricing", label: "Pricing", icon: DollarSign },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Package,
   AlertCircle,
@@ -12,14 +12,17 @@ import {
   Pen,
   Camera,
   Download,
+  CreditCard,
+  Check,
+  Loader2,
 } from "lucide-react";
 import { customerApi, CustomerApiError } from "@/lib/customer-api";
 import { cn, formatDate, truncate } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
-import { StatusBadge } from "@/components/ui/badge";
+import { PaymentBadge, StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { CustomerJob, JobStatus, PODInfo, InvoiceInfo } from "@/types";
+import type { CustomerJob, JobStatus, PaymentStatus, PODInfo, InvoiceInfo, PaymentIntentResponse } from "@/types";
 
 function TableSkeleton() {
   return (
@@ -295,7 +298,53 @@ function InvoiceModal({
   );
 }
 
+function PayButton({ jobId, onPaid }: { jobId: string; onPaid: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function handlePay() {
+    setLoading(true);
+    setErr("");
+    try {
+      const res = await customerApi.post<PaymentIntentResponse>(
+        `/api/customer/jobs/${jobId}/create-payment-intent`,
+      );
+      if (res.mode === "stub") {
+        setDone(true);
+        onPaid();
+      } else {
+        setDone(true);
+        onPaid();
+      }
+    } catch (e) {
+      setErr(e instanceof CustomerApiError ? e.message : "Payment failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (done) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-600">
+        <Check className="h-3.5 w-3.5" /> Paid
+      </span>
+    );
+  }
+
+  return (
+    <div>
+      <Button variant="default" size="sm" onClick={handlePay} disabled={loading}>
+        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />}
+        Pay Now
+      </Button>
+      {err && <p className="mt-1 text-xs text-red-500">{err}</p>}
+    </div>
+  );
+}
+
 export default function CustomerJobsPage() {
+  const queryClient = useQueryClient();
   const [podModal, setPodModal] = useState<{ jobId: string; trackingId: string } | null>(null);
   const [invoiceModal, setInvoiceModal] = useState<{ jobId: string; trackingId: string } | null>(null);
 
@@ -315,7 +364,7 @@ export default function CustomerJobsPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Your Deliveries</h1>
         <p className="text-sm text-gray-500">
-          Track your jobs, view proofs of delivery, and download invoices.
+          Track your jobs, view proofs of delivery, and pay online.
         </p>
       </div>
 
@@ -328,6 +377,7 @@ export default function CustomerJobsPage() {
                 <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Pickup</th>
                 <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Drop-off</th>
                 <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Status</th>
+                <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Payment</th>
                 <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Date</th>
                 <th className="px-5 py-3.5 text-left font-semibold text-gray-600">Actions</th>
               </tr>
@@ -335,13 +385,13 @@ export default function CustomerJobsPage() {
             <tbody className="divide-y divide-gray-100">
               {isLoading && (
                 <tr>
-                  <td colSpan={6}><TableSkeleton /></td>
+                  <td colSpan={7}><TableSkeleton /></td>
                 </tr>
               )}
 
               {isError && (
                 <tr>
-                  <td colSpan={6}>
+                  <td colSpan={7}>
                     <div className="flex flex-col items-center gap-4 py-16">
                       <AlertCircle className="h-10 w-10 text-red-400" />
                       <p className="font-medium text-gray-900">Failed to load your jobs</p>
@@ -358,7 +408,7 @@ export default function CustomerJobsPage() {
 
               {!isLoading && !isError && jobs?.length === 0 && (
                 <tr>
-                  <td colSpan={6}>
+                  <td colSpan={7}>
                     <div className="flex flex-col items-center gap-3 py-16">
                       <Package className="h-10 w-10 text-gray-300" />
                       <p className="font-medium text-gray-900">No deliveries yet</p>
@@ -386,6 +436,16 @@ export default function CustomerJobsPage() {
                   </td>
                   <td className="px-5 py-4">
                     <StatusBadge status={job.status} />
+                  </td>
+                  <td className="px-5 py-4">
+                    {job.payment_status === "unpaid" && job.price != null ? (
+                      <PayButton
+                        jobId={job.id}
+                        onPaid={() => queryClient.invalidateQueries({ queryKey: ["customer-jobs"] })}
+                      />
+                    ) : (
+                      <PaymentBadge status={job.payment_status} />
+                    )}
                   </td>
                   <td className="px-5 py-4 text-gray-500">
                     {job.delivered_at
