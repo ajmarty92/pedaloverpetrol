@@ -6,8 +6,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "PedalOverPetrol — Courier Management",
-  description: "Admin dashboard for the PedalOverPetrol courier system.",
+  title: "PedalOverPetrol — Fast, Reliable Courier Service",
+  description: "Same-day bicycle courier delivery for businesses in London. Real-time tracking, proof of delivery, and business accounts.",
 };
 
 export default function RootLayout({
