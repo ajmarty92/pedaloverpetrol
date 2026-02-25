@@ -6,7 +6,14 @@ from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from src.core.settings import settings
-from src.db import Base  # noqa: F401  — side-effect import loads all models
+from src.db.base import Base
+
+import src.auth.models  # noqa: F401
+import src.drivers.models  # noqa: F401
+import src.customers.models  # noqa: F401
+import src.jobs.models  # noqa: F401
+import src.pod.models  # noqa: F401
+import src.pricing.models  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
