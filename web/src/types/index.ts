@@ -25,3 +25,22 @@ export interface TokenResponse {
   refresh_token: string;
   token_type: string;
 }
+
+export interface TrackingDriverSummary {
+  id: string;
+  name: string;
+  current_lat: number | null;
+  current_lng: number | null;
+  last_location_update_at: string | null;
+}
+
+export interface TrackingInfo {
+  tracking_id: string;
+  status: JobStatus;
+  pickup_address: string;
+  dropoff_address: string;
+  created_at: string;
+  updated_at: string;
+  delivered_at: string | null;
+  driver: TrackingDriverSummary | null;
+}
