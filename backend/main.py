@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.analytics.routes import router as analytics_router
 from src.auth.routes import router as auth_router
 from src.core.logging import setup_logging
+from src.customer_portal.routes import router as customer_portal_router
 from src.drivers.routes import router as drivers_router
 from src.jobs.routes import router as jobs_router
 from src.pod.routes import router as pod_router
@@ -28,6 +29,7 @@ app.add_middleware(
 
 app.include_router(analytics_router)
 app.include_router(auth_router)
+app.include_router(customer_portal_router)
 app.include_router(jobs_router)
 app.include_router(drivers_router)
 app.include_router(pod_router)

@@ -10,6 +10,7 @@ class UserRole(str, enum.Enum):
     ADMIN = "admin"
     DISPATCHER = "dispatcher"
     DRIVER = "driver"
+    CUSTOMER = "customer"
 
 
 class User(Base):
