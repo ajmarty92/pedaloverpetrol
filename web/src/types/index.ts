@@ -52,6 +52,40 @@ export interface TrackingDriverSummary {
   last_location_update_at: string | null;
 }
 
+export interface AnalyticsSummary {
+  jobs_total: number;
+  jobs_delivered: number;
+  jobs_failed: number;
+  jobs_active: number;
+  on_time_rate: number;
+  avg_delivery_time_minutes: number | null;
+}
+
+export interface DayBucket {
+  date: string;
+  jobs_total: number;
+  jobs_delivered: number;
+  jobs_failed: number;
+}
+
+export interface ByDayResponse {
+  range_days: number;
+  buckets: DayBucket[];
+}
+
+export interface DriverPerformance {
+  driver_id: string;
+  driver_name: string;
+  jobs_completed: number;
+  jobs_failed: number;
+  on_time_rate: number;
+}
+
+export interface ByDriverResponse {
+  range_days: number;
+  drivers: DriverPerformance[];
+}
+
 export interface TrackingInfo {
   tracking_id: string;
   status: JobStatus;
