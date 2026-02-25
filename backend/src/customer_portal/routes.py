@@ -1,7 +1,9 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.customers.models import Customer
@@ -17,12 +19,15 @@ from src.customer_portal.schemas import (
 from src.db.session import get_db
 
 router = APIRouter(prefix="/api/customer", tags=["customer-portal"])
+limiter = Limiter(key_func=get_remote_address)
 
 CustUser = Annotated[Customer, Depends(get_current_customer)]
 
 
 @router.post("/auth/login", response_model=CustomerTokenResponse)
+@limiter.limit("5/minute")
 async def customer_login(
+    request: Request,
     body: CustomerLoginRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):

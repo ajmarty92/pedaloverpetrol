@@ -5,8 +5,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.dependencies import get_current_user
-from src.auth.models import User
+from src.auth.dependencies import require_roles
+from src.auth.models import User, UserRole
 from src.db.session import get_db
 from src.jobs import service
 from src.jobs.models import JobStatus
@@ -14,7 +14,7 @@ from src.jobs.schemas import JobAssign, JobCreate, JobRead, JobUpdate
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
-AuthUser = Annotated[User, Depends(get_current_user)]
+AuthUser = Annotated[User, Depends(require_roles(UserRole.ADMIN, UserRole.DISPATCHER))]
 
 
 @router.post("", response_model=JobRead, status_code=201)

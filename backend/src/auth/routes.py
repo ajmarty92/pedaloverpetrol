@@ -1,6 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import service
@@ -10,6 +12,7 @@ from src.auth.schemas import LoginRequest, RegisterRequest, TokenResponse, UserR
 from src.db.session import get_db
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+limiter = Limiter(key_func=get_remote_address)
 
 AdminOnly = Annotated[User, Depends(require_roles(UserRole.ADMIN))]
 
@@ -20,12 +23,13 @@ async def register(
     db: Annotated[AsyncSession, Depends(get_db)],
     _admin: AdminOnly,
 ):
-    user = await service.register_user(db, email=body.email, password=body.password, role=body.role)
-    return user
+    return await service.register_user(db, email=body.email, password=body.password, role=body.role)
 
 
 @router.post("/login", response_model=TokenResponse)
+@limiter.limit("5/minute")
 async def login(
+    request: Request,
     body: LoginRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):

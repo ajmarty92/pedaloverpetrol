@@ -5,13 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.analytics import service
 from src.analytics.schemas import AnalyticsSummary, ByDayResponse, ByDriverResponse
-from src.auth.dependencies import get_current_user
-from src.auth.models import User
+from src.auth.dependencies import require_roles
+from src.auth.models import User, UserRole
 from src.db.session import get_db
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 
-AuthUser = Annotated[User, Depends(get_current_user)]
+AuthUser = Annotated[User, Depends(require_roles(UserRole.ADMIN, UserRole.DISPATCHER))]
 
 ALLOWED_RANGES = {7, 14, 30, 90}
 
